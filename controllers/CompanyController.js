@@ -2,11 +2,7 @@ const response = require("express");
 const { conn } = require("./MysqlConnection");
 const getConnection = async () => {
   await conn.connect((err) => {
-    if (err) {
-      console.error("Error connecting: " + err.stack);
-      return;
-    }
-    console.log("Connected!");
+    if (err) return;
   });
 };
 getConnection();
@@ -20,7 +16,6 @@ const findAll = (req, res = response) => {
       });
     });
   } catch (error) {
-    console.log(error);
     res.json({
       error: true,
       msg: "Error",
@@ -38,7 +33,6 @@ const save = (req, res = response) => {
       });
     });
   } catch (error) {
-    console.log(error);
     res.json({
       error: true,
       msg: "Error",
@@ -47,13 +41,12 @@ const save = (req, res = response) => {
 };
 
 const update = (req, res = response) => {
-  const { id, nombre } = req.body;
+  const { nombre, id } = req.body;
   try {
-    const rows = conn.query(
+    conn.query(
       "UPDATE company set name = ? where id = ?",
       [nombre, id],
       (err, result) => {
-        console.log(result);
         return res.json({
           error: false,
           msg: "Compañia modificada correctamente",
@@ -61,7 +54,6 @@ const update = (req, res = response) => {
       }
     );
   } catch (error) {
-    console.log(error);
     res.json({
       error: true,
       msg: "Error",
@@ -72,13 +64,13 @@ const update = (req, res = response) => {
 const deleteCompany = (req, res = response) => {
   const { id } = req.body;
   try {
-    const rows = conn.query("delete from company where id = ?", [id]);
-    res.json({
-      error: false,
-      msg: "Compañia eliminada correctamente",
+    conn.query("delete from company where id = ?", [id], () => {
+      return res.json({
+        error: false,
+        msg: "Compañia eliminada correctamente",
+      });
     });
   } catch (error) {
-    console.log(error);
     res.json({
       error: true,
       msg: "Error",
